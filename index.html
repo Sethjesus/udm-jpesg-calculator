@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧮 UDM JPESG</title>
+    <title>🧢 UDM JPESG</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon-192.png">
+    <link rel="icon" href="icon-192.png" sizes="32x32">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,12 +23,12 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         .calculator img {
-            width: 100px;
-            height: 100px;
+            width: 64px;
+            height: 64px;
             margin-bottom: 10px;
         }
         .display {
-            width: 100%;
+            width: 96%;
             height: 50px;
             font-size: 24px;
             text-align: right;
@@ -73,7 +73,7 @@
 
 <div class="calculator">
     <img src="icon-192.png" alt="Calculator Icon">
-    <h2>🧮 UDM JPESG</h2>
+    <h2>🧢 UDM JPESG</h2>
     <input type="text" id="display" class="display" readonly>
     <div class="buttons">
         <button onclick="appendNumber('sin(')">sin</button>
@@ -124,10 +124,7 @@
     });
     installButton.addEventListener('click', () => {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User installed the app');
-            }
+        deferredPrompt.userChoice.then(() => {
             deferredPrompt = null;
             installButton.style.display = 'none';
         });
@@ -155,11 +152,16 @@
     function clearDisplay() {
         document.getElementById('display').value = '';
     }
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js')
-            .then(() => console.log('✅ Service Worker 註冊成功'))
-            .catch((error) => console.error('❌ Service Worker 註冊失敗:', error));
-    }
+    document.addEventListener('keydown', function(event) {
+        if (/^[0-9+\-*/.=]$/.test(event.key)) {
+            appendNumber(event.key);
+        } else if (event.key === 'Enter') {
+            calculate();
+        } else if (event.key === 'Backspace') {
+            let display = document.getElementById('display');
+            display.value = display.value.slice(0, -1);
+        }
+    });
 </script>
 
 </body>

@@ -56,6 +56,17 @@
         button.operator { background: #f9a825; }
         button.equal { background: #4caf50; }
         button.clear { background: #d32f2f; }
+        #installButton {
+            margin-top: 15px;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -100,9 +111,28 @@
         <button class="equal" onclick="calculate()">=</button>
         <button onclick="appendNumber('MC')">MC</button>
     </div>
+    <button id="installButton">安裝應用程式</button>
 </div>
 
 <script>
+    let deferredPrompt;
+    const installButton = document.getElementById('installButton');
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installButton.style.display = 'block';
+    });
+    installButton.addEventListener('click', () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User installed the app');
+            }
+            deferredPrompt = null;
+            installButton.style.display = 'none';
+        });
+    });
+    
     function appendNumber(num) {
         document.getElementById('display').value += num;
     }
@@ -125,16 +155,6 @@
     function clearDisplay() {
         document.getElementById('display').value = '';
     }
-    document.addEventListener('keydown', function(event) {
-        if (/^[0-9+\-*/.=]$/.test(event.key)) {
-            appendNumber(event.key);
-        } else if (event.key === 'Enter') {
-            calculate();
-        } else if (event.key === 'Backspace') {
-            let display = document.getElementById('display');
-            display.value = display.value.slice(0, -1);
-        }
-    });
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js')
             .then(() => console.log('✅ Service Worker 註冊成功'))

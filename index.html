@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧮 UDM JPESG</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #333;
+            color: white;
+        }
+        .calculator {
+            width: 90vw;
+            max-width: 380px;
+            margin: 5vh auto;
+            padding: 15px;
+            background: #222;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .display {
+            width: 100%;
+            height: 50px;
+            font-size: 24px;
+            text-align: right;
+            background: #444;
+            color: #0f0;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+        button {
+            padding: 14px;
+            font-size: 18px;
+            background: #555;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        button.operator { background: #f9a825; }
+        button.equal { background: #4caf50; }
+        button.clear { background: #d32f2f; }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <h2>🧮 UDM JPESG</h2>
+    <input type="text" id="display" class="display" readonly>
+    <div class="buttons">
+        <button onclick="appendNumber('sin(')">sin</button>
+        <button onclick="appendNumber('cos(')">cos</button>
+        <button onclick="appendNumber('tan(')">tan</button>
+        <button onclick="appendNumber('log(')">log</button>
+        <button class="clear" onclick="clearDisplay()">C</button>
+        
+        <button onclick="appendNumber('ln(')">ln</button>
+        <button onclick="appendNumber('exp(')">exp</button>
+        <button onclick="appendNumber('x^2')">x²</button>
+        <button onclick="appendNumber('x^3')">x³</button>
+        <button class="operator" onclick="appendNumber('/')">/</button>
+        
+        <button onclick="appendNumber('7')">7</button>
+        <button onclick="appendNumber('8')">8</button>
+        <button onclick="appendNumber('9')">9</button>
+        <button class="operator" onclick="appendNumber('*')">*</button>
+        <button onclick="appendNumber('MR')">MR</button>
+        
+        <button onclick="appendNumber('4')">4</button>
+        <button onclick="appendNumber('5')">5</button>
+        <button onclick="appendNumber('6')">6</button>
+        <button class="operator" onclick="appendNumber('-')">-</button>
+        <button onclick="appendNumber('M-')">M-</button>
+        
+        <button onclick="appendNumber('1')">1</button>
+        <button onclick="appendNumber('2')">2</button>
+        <button onclick="appendNumber('3')">3</button>
+        <button class="operator" onclick="appendNumber('+')">+</button>
+        <button onclick="appendNumber('M+')">M+</button>
+        
+        <button onclick="appendNumber('0')">0</button>
+        <button onclick="appendNumber('.')">.</button>
+        <button class="equal" onclick="calculate()">=</button>
+        <button onclick="appendNumber('MC')">MC</button>
+    </div>
+</div>
+
+<script>
+    function appendNumber(num) {
+        document.getElementById('display').value += num;
+    }
+    function calculate() {
+        try {
+            let expression = document.getElementById('display').value;
+            expression = expression.replace(/sin\(/g, 'Math.sin(')
+                                   .replace(/cos\(/g, 'Math.cos(')
+                                   .replace(/tan\(/g, 'Math.tan(')
+                                   .replace(/log\(/g, 'Math.log10(')
+                                   .replace(/ln\(/g, 'Math.log(')
+                                   .replace(/exp\(/g, 'Math.exp(')
+                                   .replace(/x\^2/g, '**2')
+                                   .replace(/x\^3/g, '**3');
+            document.getElementById('display').value = eval(expression);
+        } catch (e) {
+            document.getElementById('display').value = 'Error';
+        }
+    }
+    function clearDisplay() {
+        document.getElementById('display').value = '';
+    }
+    document.addEventListener('keydown', function(event) {
+        if (/^[0-9+\-*/.=]$/.test(event.key)) {
+            appendNumber(event.key);
+        } else if (event.key === 'Enter') {
+            calculate();
+        } else if (event.key === 'Backspace') {
+            let display = document.getElementById('display');
+            display.value = display.value.slice(0, -1);
+        }
+    });
+</script>
+
+</body>
+</html>

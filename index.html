@@ -116,19 +116,29 @@
 
 <script>
     let deferredPrompt;
-    const installButton = document.getElementById('installButton');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installButton.style.display = 'block';
-    });
-    installButton.addEventListener('click', () => {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-            deferredPrompt = null;
-            installButton.style.display = 'none';
-        });
-    });
+const installButton = document.getElementById('installButton');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log("✅ Install prompt detected!");
+    e.preventDefault();
+    deferredPrompt = e;
+    installButton.style.display = 'block';
+});
+
+installButton.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('🎉 PWA 已安裝');
+        } else {
+            console.log('❌ 使用者取消安裝');
+        }
+        deferredPrompt = null;
+        installButton.style.display = 'none';
+    }
+});
+
     
     function appendNumber(num) {
         document.getElementById('display').value += num;

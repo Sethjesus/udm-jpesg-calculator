@@ -125,6 +125,16 @@
     function clearDisplay() {
         document.getElementById('display').value = '';
     }
+    document.addEventListener('keydown', function(event) {
+        if (/^[0-9+\-*/.=]$/.test(event.key)) {
+            appendNumber(event.key);
+        } else if (event.key === 'Enter') {
+            calculate();
+        } else if (event.key === 'Backspace') {
+            let display = document.getElementById('display');
+            display.value = display.value.slice(0, -1);
+        }
+    });
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js')
             .then(() => console.log('✅ Service Worker 註冊成功'))

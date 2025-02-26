@@ -67,6 +67,9 @@
             cursor: pointer;
             display: none;
         }
+        .info {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -74,6 +77,12 @@
 <div class="calculator">
     <img src="icon-192.png" alt="Calculator Icon">
     <h2>🌍 UDM JPESG</h2>
+
+    <!-- 加入顯示日期與時間 -->
+    <div class="info">
+        <p id="datetime">📅 加載中...</p>
+    </div>
+
     <input type="text" id="display" class="display" readonly>
     <div class="buttons">
         <button onclick="appendNumber('(')">(</button>
@@ -81,6 +90,10 @@
         <button onclick="appendNumber('sin(')">sin</button>
         <button onclick="appendNumber('cos(')">cos</button>
         <button onclick="appendNumber('tan(')">tan</button>
+        
+        <button onclick="appendNumber('cot(')">cot</button>
+        <button onclick="appendNumber('sec(')">sec</button>
+        <button onclick="appendNumber('csc(')">csc</button>
         <button onclick="appendNumber('log(')">log</button>
         <button class="clear" onclick="clearDisplay()">C</button>
 
@@ -117,30 +130,27 @@
 </div>
 
 <script>
-    let deferredPrompt;
-    const installButton = document.getElementById('installButton');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installButton.style.display = 'block';
-    });
-    installButton.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            await deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            installButton.style.display = 'none';
-        }
-    });
+    function updateDateTime() {
+        const now = new Date();
+        const dateTimeString = now.toLocaleString('zh-TW', { hour12: false });
+        document.getElementById('datetime').textContent = "📅 當前時間：" + dateTimeString;
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
     function appendNumber(num) {
         document.getElementById('display').value += num;
     }
+
     function calculate() {
         try {
             let expression = document.getElementById('display').value;
             expression = expression.replace(/sin\(/g, 'Math.sin(')
                                    .replace(/cos\(/g, 'Math.cos(')
                                    .replace(/tan\(/g, 'Math.tan(')
+                                   .replace(/cot\(/g, '1/Math.tan(')
+                                   .replace(/sec\(/g, '1/Math.cos(')
+                                   .replace(/csc\(/g, '1/Math.sin(')
                                    .replace(/log\(/g, 'Math.log10(')
                                    .replace(/ln\(/g, 'Math.log(')
                                    .replace(/exp\(/g, 'Math.exp(')
@@ -151,9 +161,11 @@
             document.getElementById('display').value = 'Error';
         }
     }
+
     function clearDisplay() {
         document.getElementById('display').value = '';
     }
+
     document.addEventListener('keydown', function(event) {
         if (/^[0-9+\-*/.=]$/.test(event.key)) {
             appendNumber(event.key);

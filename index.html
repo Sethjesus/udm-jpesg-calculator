@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌍 UDM JPESG</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon-192.png" sizes="192x192">
+    <link rel="icon" href="icon-192.png" sizes="12x12">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -90,40 +90,52 @@
         <button onclick="appendNumber('sin(')">sin</button>
         <button onclick="appendNumber('cos(')">cos</button>
         <button onclick="appendNumber('tan(')">tan</button>
-
+        
+        <button onclick="appendNumber('cot(')">cot</button>
+        <button onclick="appendNumber('sec(')">sec</button>
+        <button onclick="appendNumber('csc(')">csc</button>
         <button onclick="appendNumber('log(')">log</button>
+        <button class="clear" onclick="clearDisplay()">C</button>
+
         <button onclick="appendNumber('ln(')">ln</button>
         <button onclick="appendNumber('exp(')">exp</button>
-        <button class="clear" onclick="clearDisplay()">C</button>
+        <button onclick="appendNumber('x^2')">x²</button>
+        <button onclick="appendNumber('x^3')">x³</button>
+        <button class="operator" onclick="appendNumber('/')">/</button>
 
         <button onclick="appendNumber('7')">7</button>
         <button onclick="appendNumber('8')">8</button>
         <button onclick="appendNumber('9')">9</button>
-        <button class="operator" onclick="appendNumber('/')">/</button>
+        <button class="operator" onclick="appendNumber('*')">*</button>
+        <button onclick="appendNumber('MR')">MR</button>
 
         <button onclick="appendNumber('4')">4</button>
         <button onclick="appendNumber('5')">5</button>
         <button onclick="appendNumber('6')">6</button>
-        <button class="operator" onclick="appendNumber('*')">*</button>
+        <button class="operator" onclick="appendNumber('-')">-</button>
+        <button onclick="appendNumber('M-')">M-</button>
 
         <button onclick="appendNumber('1')">1</button>
         <button onclick="appendNumber('2')">2</button>
         <button onclick="appendNumber('3')">3</button>
-        <button class="operator" onclick="appendNumber('-')">-</button>
+        <button class="operator" onclick="appendNumber('+')">+</button>
+        <button onclick="appendNumber('M+')">M+</button>
 
         <button onclick="appendNumber('0')">0</button>
         <button onclick="appendNumber('.')">.</button>
         <button class="equal" onclick="calculate()">=</button>
-        <button class="operator" onclick="appendNumber('+')">+</button>
+        <button onclick="appendNumber('MC')">MC</button>
     </div>
 
-    <button id="installButton">安裝應用程式</button>
+    <!-- PWA 下載按鈕 -->
+    <button id="installButton">📥 下載應用程式</button>
 </div>
 
 <script>
     function updateDateTime() {
         const now = new Date();
-        document.getElementById('datetime').textContent = "📅 當前時間：" + now.toLocaleString('zh-TW', { hour12: false });
+        const dateTimeString = now.toLocaleString('zh-TW', { hour12: false });
+        document.getElementById('datetime').textContent = "📅 當前時間：" + dateTimeString;
     }
     setInterval(updateDateTime, 1000);
     updateDateTime();
@@ -138,9 +150,14 @@
             expression = expression.replace(/sin\(/g, 'Math.sin(')
                                    .replace(/cos\(/g, 'Math.cos(')
                                    .replace(/tan\(/g, 'Math.tan(')
+                                   .replace(/cot\(/g, '1/Math.tan(')
+                                   .replace(/sec\(/g, '1/Math.cos(')
+                                   .replace(/csc\(/g, '1/Math.sin(')
                                    .replace(/log\(/g, 'Math.log10(')
                                    .replace(/ln\(/g, 'Math.log(')
-                                   .replace(/exp\(/g, 'Math.exp(')');
+                                   .replace(/exp\(/g, 'Math.exp(')
+                                   .replace(/x\^2/g, '**2')
+                                   .replace(/x\^3/g, '**3');
             document.getElementById('display').value = eval(expression);
         } catch (e) {
             document.getElementById('display').value = 'Error';
@@ -151,32 +168,32 @@
         document.getElementById('display').value = '';
     }
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(() => {
-            console.log('Service Worker 註冊成功');
-        }).catch(error => {
-            console.log('Service Worker 註冊失敗:', error);
-        });
-    }
+    document.addEventListener('keydown', function(event) {
+        if (/^[0-9+\-*/.=]$/.test(event.key)) {
+            appendNumber(event.key);
+        } else if (event.key === 'Enter') {
+            calculate();
+        } else if (event.key === 'Backspace') {
+            let display = document.getElementById('display');
+            display.value = display.value.slice(0, -1);
+        }
+    });
 
+    // PWA 下載按鈕邏輯
     let deferredPrompt;
+    const installButton = document.getElementById('installButton');
+
     window.addEventListener('beforeinstallprompt', (event) => {
         event.preventDefault();
         deferredPrompt = event;
-        document.getElementById('installButton').style.display = 'block';
+        installButton.style.display = 'block';
     });
 
-    document.getElementById('installButton').addEventListener('click', () => {
+    installButton.addEventListener('click', async () => {
         if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(choiceResult => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('使用者接受安裝 PWA');
-                } else {
-                    console.log('使用者拒絕安裝 PWA');
-                }
-                deferredPrompt = null;
-            });
+            await deferredPrompt.prompt();
+            deferredPrompt = null;
+            installButton.style.display = 'none';
         }
     });
 </script>
